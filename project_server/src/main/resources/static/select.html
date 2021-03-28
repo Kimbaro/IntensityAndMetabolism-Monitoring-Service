@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        html {
+            margin: 0;
+
+            height: 100%;
+
+            overflow: hidden;
+
+        }
+
+        table {
+            border-spacing: 100px;
+        }
+
+        table td {
+            border: 1px solid black;
+            width: 100em;
+            height: 50em;
+        }
+
+        table td:hover {
+            border: 2px solid red;
+        }
+
+        td > div {
+            text-align: center;
+        }
+
+        td:first-child {
+            background-color: darkgrey;
+        }
+
+        td:last-child {
+            background-color: deepskyblue;
+        }
+
+        td > div > span {
+            font-size: 40px;
+            font-weight: bold;
+        }
+    </style>
+    <script src="/util/dataScreen.js"></script>
+
+</head>
+<body>
+<table>
+    <tr>
+        <td onclick="select(1)">
+            <div><span>채널코드가 있는경우</span></div>
+            <div id="input_code">
+                <input type="text" id="usercode" width="20em" style="font-size: 20px" placeholder="입력">
+            </div>
+        </td>
+        <td onclick="select(2)">
+            <div><span>채널코드가 없는경우</span></div>
+        </td>
+    </tr>
+</table>
+
+<script>
+    function select(type) {
+        var usercode = document.getElementById("usercode");
+        if (type == 1) {//개인
+            if (usercode.value != "") {
+                var check = false;
+                var id;
+                var xhr = new XMLHttpRequest();
+                xhr.responseType = "text";
+                xhr.onreadystatechange = function () { // 요청에 대한 콜백
+                    if (xhr.readyState === xhr.DONE) { // 요청이 완료되면
+                        if (xhr.status === 200 || xhr.status === 201) {
+                            if (xhr.responseText == "") {
+                                alert("존재하지 않는 코드입니다");
+                            } else {
+                                var json = JSON.parse(xhr.responseText);
+                                //id = json.id;
+                                console.log(json);
+                                console.log(json.data);
+                                console.log(json.groupcode);
+                                location.replace('http://192.168.35.134:8080/group_screen/index.html?channel=' + json.id);
+                                //list 저장내역 다 읽어옴
+                                // for (x in json.data) {
+                                //     //var params = o;
+                                //     console.log(json.data[x]);
+                                //     for (y in json.data[x]) {
+                                //         console.log(json.data[x][y]);
+                                //     }
+                                // }
+                            }
+                            check = true;
+                        } else {
+                            console.error(xhr.responseText);
+                        }
+                    }
+                };
+                xhr.open('GET', 'http://192.168.35.134:8080/search_ch?channel=' + usercode.value); // 메소드와 주소 설정
+                xhr.send(); // 요청 전송
+            }
+        } else if (type == 2) { //코드가 없는 경우
+            //location.replace("/group/index.html");
+            var check = false;
+            var id;
+            var xhr = new XMLHttpRequest();
+            xhr.responseType = "text";
+            xhr.onreadystatechange = function () { // 요청에 대한 콜백
+                if (xhr.readyState === xhr.DONE) { // 요청이 완료되면
+                    if (xhr.status === 200 || xhr.status === 201) {
+                        var json = JSON.parse(xhr.responseText);
+                        //id = json.id;
+                        console.log(json);
+                        console.log(json.data);
+                        console.log(json.id);
+                        //location.replace("/screen/index.html?type=" + type + "&groupcode=" + json.groupcode + "&id=" + json.data[0][0]);
+                        //list 저장내역 다 읽어옴
+                        // for (x in json.data) {
+                        //     //var params = o;
+                        //     console.log(json.data[x]);
+                        //     for (y in json.data[x]) {
+                        //         console.log(json.data[x][y]);
+                        //     }
+                        // }
+                        check = true;
+                        location.replace('http://192.168.35.134:8080/group_screen/index.html?channel=' + json.id);
+                    } else {
+                        console.error(xhr.responseText);
+                    }
+                }
+            };
+            xhr.open('GET', 'http://192.168.35.134:8080/c_ch'); // 메소드와 주소 설정
+            xhr.send(); // 요청 전송
+        }
+    }
+
+</script>
+</body>
+</html>

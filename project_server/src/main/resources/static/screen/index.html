@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../util/readParam.js"></script>
+    <script src="createTable.js"></script>
+    <script src="updateTable.js"></script>
+
+    <style type="text/css">
+        html, body {
+            margin: 0;
+
+            height: 100%;
+
+            overflow: hidden;
+        }
+
+        td {
+            text-align: center;
+            border: 1px solid black;
+        }
+
+        table {
+            width: 100%;
+            height: 100%;
+            border: 1px solid black;
+        }
+
+        #wrapper > div {
+            background-color: aliceblue;
+            border: 1px black solid;
+        }
+
+        #wrapper {
+            display: grid;
+            /*grid-template-columns: repeat(5, 2fr);*/
+            grid-template-columns: repeat(1, 1fr);
+            grid-auto-rows: 100%;
+            height: 80%;
+            padding: 30px;
+            gap: 5px;
+        }
+
+        @media ( min-width: 768px ) {
+            #wrapper {
+                display: grid;
+                /*grid-template-columns: repeat(4, 2fr);*/
+                grid-template-columns: repeat(1, 1fr);
+                grid-auto-rows: 100%;
+
+                gap: 5px;
+            }
+        }
+
+        @media ( min-width: 1024px ) {
+            #wrapper {
+                display: grid;
+                /*grid-template-columns: repeat(4, 2fr);*/
+                grid-template-columns: repeat(1, 1fr);
+                grid-auto-rows: 100%;
+
+                gap: 5px;
+            }
+        }
+
+        #ranking_wrapper {
+            width: 20%;
+            height: 100%;
+            padding: 5px;
+            border: 1px solid black;
+        }
+
+        #ranking_wrapper > div {
+            border-radius: 5px;
+            height: 5%;
+            border: 1px solid black;
+            margin-bottom: 5px;
+            box-shadow: 1px 1px 1px 1px gray;
+        }
+
+        .item1 {
+            float: left;
+            width: 20%;
+            height: 100%;
+            background-color: #D8D8D8;
+            text-align: center;
+        }
+
+        .item2 {
+
+        }
+
+        .rank {
+            margin-top: 25%;
+            padding: 2px;
+            font-size: 20px;
+        }
+
+        .name {
+            font-size: 15px;
+        }
+
+        .time {
+            text-align: center;
+            font-size: 23px;
+        }
+    </style>
+
+    <style>
+        html, body {
+
+            margin: 0;
+
+            height: 100%;
+
+            overflow: hidden;
+
+        }
+
+        #ranking_wrapper {
+            position: absolute;
+            right: 0;
+            width: 10%;
+            height: 100%;
+            padding: 5px;
+            border: 1px solid black;
+            overflow: scroll
+        }
+
+        #ranking_wrapper > div {
+            border-radius: 5px;
+            height: 5%;
+            border: 1px solid black;
+            margin-bottom: 5px;
+            box-shadow: 1px 1px 1px 1px gray;
+        }
+
+        .item1 {
+            float: left;
+            width: 20%;
+            height: 100%;
+            background-color: #D8D8D8;
+            text-align: center;
+        }
+
+        .item2 {
+
+        }
+
+        .rank {
+            margin-top: 25%;
+            padding: 2px;
+            font-size: 20px;
+        }
+
+        .name {
+            font-size: 15px;
+        }
+
+        .time {
+            text-align: center;
+            font-size: 23px;
+        }
+
+    </style>
+</head>
+<body>
+<div style="width: 100%; height: 100%; padding: 5px">
+    <div class="container" id="container"
+         style=" width: 89%; height: 100%; border: 1px solid black;position: absolute;">
+        <div id="wrapper">
+
+        </div>
+    </div>
+    <div id="ranking_wrapper">
+    </div>
+</div>
+
+<script>
+    var type = getParameterByName("type");
+    var groupId = getParameterByName("groupcode");
+    var userId = getParameterByName("id");
+    console.log("생성정보 : " + type + " : " + groupId + " : " + userId);
+    alert("생성정보 : " + type + " : " + groupId + " : " + userId);
+
+    var first = true;
+    setInterval(function (args) {
+        var xhr = new XMLHttpRequest();
+        xhr.responseType = "text";
+        xhr.onreadystatechange = function () { // 요청에 대한 콜백
+            if (xhr.readyState === xhr.DONE) { // 요청이 완료되면
+                if (xhr.status === 200 || xhr.status === 201) {
+                    if (xhr.responseText == "") {
+                        alert("존재하지 않는 코드입니다");
+                    } else {
+                        var json = JSON.parse(xhr.responseText);
+                        //id = json.id;
+                        // console.log(json);
+                        // console.log(json.data);
+                        // console.log(json.groupcode);
+                        // location.replace("/screen/index.html?type=" + type + "&groupcode=" + json.groupcode + "&id=" + json.data[0][0]);
+                        //list 저장내역 다 읽어옴
+                        for (x in json.data) {
+                            //var params = o;
+                            if (first) {
+                                first = false;
+                                console.log("timer : " + json.data[x][2]);
+                                console.log(json.data[x]);
+                                // carbonenRate_min, carbonenRate_max, heart, id, minimumexe, maximumexe, name
+                                createTable(json.data[x][3], json.data[x][4], json.data[x][1], json.data[x][0], json.data[x][5], json.data[x][6], json.data[x][7]);
+                                ranking(json.data[x][0], json.data[x][7], json.data[x][1], json.data[x][2], 0);
+                            } else {
+                                // rankingFilter(id, rate, min_rate, max_rate)
+                                // (carbonenRate_min, carbonenRate_max, heart, device, minimumexe, maximumexe)
+                                updateTable(json.data[x][3], json.data[x][4], json.data[x][1], json.data[x][0], json.data[x][5], json.data[x][6]);
+                                rankingFilter(json.data[x][0], json.data[x][1], json.data[x][3], json.data[x][4], json.data[x][2]);
+                                console.log("테이블생성종료");
+                            }
+                            // for (y in json.data[x]) {
+                            //     console.log(json.data[x][y]);
+                            // }
+                        }
+                    }
+                } else {
+                    console.error(xhr.responseText);
+                }
+            }
+        };
+        xhr.open('GET', 'http://34.97.101.220:8080/find_data?groupId=' + groupId); // 메소드와 주소 설정
+        xhr.send(); // 요청 전송
+
+    }, 1000);
+
+
+    //랭킹부분 초기세팅 , 랭킹생성
+    function ranking(id, name, rate, time, rank) {
+        var container = window.document.getElementById("ranking_wrapper");
+        var idvalue_id = document.createElement("div"); //메인박스
+        idvalue_id.setAttribute("id", id + "_id");
+
+        var item1 = document.createElement("div");
+        item1.setAttribute("class", "item1");
+        var item1_rank = document.createElement("div");
+        item1_rank.setAttribute("class", "rank");
+        item1_rank.innerText = rank;
+        item1.appendChild(item1_rank);
+
+        var item2 = document.createElement("div");
+        item2.setAttribute("class", "item2");
+        var item2_name = document.createElement("div");
+        item2_name.setAttribute("class", "name");
+        item2_name.innerText = name;
+        var item2_time = document.createElement("div");
+        item2_time.setAttribute("class", "time");
+        item2_time.innerText = time + '초';
+        item2.appendChild(item2_name);
+        item2.appendChild(item2_time);
+
+
+        idvalue_id.appendChild(item1);
+        idvalue_id.appendChild(item2);
+
+        container.appendChild(idvalue_id);
+    }
+
+    //랭킹, 카르보넨 수치값에 따른 색상변경
+    function rankingFilter(id, rate, min_rate, max_rate, timer) {
+        var itemBox = document.getElementById(id + "_id").getElementsByClassName("item1")[0];
+        var itemBox_time = document.getElementById(id + "_id").getElementsByClassName("time")[0];
+        console.log(id + " : " + rate + " : " + min_rate + " : " + max_rate);
+        if (rate != 0) {
+            if ((rate * 1) >= (min_rate * 1) && (rate * 1) <= (max_rate * 1)) { //안정권
+                itemBox.style.backgroundColor = '#B7F0B1';
+                itemBox_time.innerText = timer + '초';
+            } else {
+                itemBox.style.backgroundColor = '#D8D8D8';
+            }
+        } else {
+            itemBox.style.backgroundColor = '#D8D8D8';
+        }
+    }
+
+    function containerReset() {
+        var container = window.document.getElementById("ranking_wrapper");
+        while (container.hasChildNodes()) {
+            container.removeChild(container.firstChild);
+        }
+    }
+</script>
+</body>
+</html>

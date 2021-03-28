@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../util/readParam.js"></script>
+    <script src="createTable.js"></script>
+    <script src="updateTable.js"></script>
+
+    <style type="text/css">
+        html, body {
+            margin: 0;
+
+            height: 100%;
+
+            overflow: hidden;
+        }
+
+        td {
+            text-align: center;
+            border: 1px solid black;
+        }
+
+        table {
+            width: 100%;
+            height: 100%;
+            border: 1px solid black;
+        }
+
+        #wrapper > div {
+            background-color: aliceblue;
+            border: 1px black solid;
+        }
+
+        #wrapper {
+            display: grid;
+            grid-auto-rows: 100%;
+            height: 200px;
+            padding: 30px;
+            gap: 5px;
+        }
+
+        @media ( min-width: 768px ) {
+            #wrapper {
+                display: grid;
+                grid-template-columns: repeat(4, 2fr);
+                grid-auto-rows: 100%;
+
+                gap: 5px;
+            }
+        }
+
+        @media ( min-width: 1024px ) {
+            #wrapper {
+                display: grid;
+                grid-template-columns: repeat(4, 2fr);
+                grid-auto-rows: 100%;
+
+                gap: 5px;
+            }
+        }
+
+        #ranking_wrapper {
+            width: 20%;
+            height: 100%;
+            padding: 5px;
+            border: 1px solid black;
+        }
+
+        #ranking_wrapper > div {
+            border-radius: 5px;
+            height: 5%;
+            border: 1px solid black;
+            margin-bottom: 5px;
+            box-shadow: 1px 1px 1px 1px gray;
+        }
+
+        .item1 {
+            float: left;
+            width: 20%;
+            height: 100%;
+            background-color: #D8D8D8;
+            text-align: center;
+        }
+
+        .item2 {
+
+        }
+
+        .rank {
+            margin-top: 25%;
+            padding: 2px;
+            font-size: 20px;
+        }
+
+        .name {
+            font-size: 15px;
+        }
+
+        .time {
+            text-align: center;
+            font-size: 23px;
+        }
+    </style>
+
+    <style>
+        html, body {
+
+            margin: 0;
+
+            height: 100%;
+
+            overflow: hidden;
+
+        }
+
+        #ranking_wrapper {
+            position: absolute;
+            right: 0;
+            width: 10%;
+            height: 100%;
+            padding: 5px;
+            border: 1px solid black;
+            overflow: scroll
+        }
+
+        #ranking_wrapper > div {
+            border-radius: 5px;
+            height: 5%;
+            border: 1px solid black;
+            margin-bottom: 5px;
+            box-shadow: 1px 1px 1px 1px gray;
+        }
+
+        .item1 {
+            float: left;
+            width: 20%;
+            height: 100%;
+            background-color: #D8D8D8;
+            text-align: center;
+        }
+
+        .item2 {
+
+        }
+
+        .rank {
+            margin-top: 25%;
+            padding: 2px;
+            font-size: 20px;
+        }
+
+        .name {
+            font-size: 15px;
+        }
+
+        .time {
+            text-align: center;
+            font-size: 23px;
+        }
+
+    </style>
+</head>
+<body>
+<header>
+    <div style="padding: 10px; font-size: large;"><span>채널코드 : </span><span id="channel">-</span></div>
+</header>
+<div style="width: 100%; height: 100%; padding: 5px">
+    <div class="container" id="container"
+         style=" width: 89%; height: 100%; border: 1px solid black;position: absolute;">
+        <div id="wrapper">
+
+        </div>
+    </div>
+    <div id="ranking_wrapper">
+    </div>
+</div>
+
+<script>
+    //var type = getParameterByName("type");
+    var channel = getParameterByName("channel");
+    document.getElementById("channel").innerText = channel;
+    //var userId = getParameterByName("id");
+    //console.log("생성정보 : " + type + " : " + channel + " : " + userId);
+    alert("생성정보 : " + channel);
+
+    var newCheck = true;
+    var dataLength = 0;
+
+    var ranklist = new Array();
+
+    setInterval(function (args) {
+        var xhr = new XMLHttpRequest();
+        xhr.responseType = "text";
+        xhr.onreadystatechange = function () { // 요청에 대한 콜백
+            if (xhr.readyState === xhr.DONE) { // 요청이 완료되면
+                if (xhr.status === 200 || xhr.status === 201) {
+                    if (xhr.responseText == "") {
+                        alert("존재하지 않는 코드입니다");
+                    } else {
+                        ranklist = new Array();
+                        containerReset();
+
+                        var json = JSON.parse(xhr.responseText);
+                        // 13, 21, 25, 44
+                        //id = json.id;
+                        console.log(json);
+                        console.log(json.length);
+                        for (var x = 0; x < json.length; x++) {
+                            console.log(json[x].id);
+                        }
+                        // console.log(json.groupcode);
+                        // location.replace("/screen/index.html?type=" + type + "&groupcode=" + json.groupcode + "&id=" + json.data[0][0]);
+                        //list 저장내역 다 읽어옴
+                        // console.log("json data의 길이" + json.data.length);
+
+                        //모니터링 업데이트 ==================================
+                        for (var x = 0; x < json.length; x++) {
+                            //var params = o;
+                            //   console.log(json.data[x]);
+                            if (dataLength < json.length) {
+                                if (newCheck == false) {
+                                    tableReset();
+                                    // containerReset();
+                                    newCheck = true;
+                                    dataLength = 0;
+                                }
+                                dataLength++;
+                                // console.log("timer : " + json.data[x][2]);
+                                // carbonenRate_min, carbonenRate_max, heart, id, minimumexe, maximumexe, name
+                                createTable(json[x].c_intensity[0], json[x].c_intensity[1], json[x].h_rate, json[x].id, json[x].c_intensity[2], json[x].c_intensity[3], json[x].name);
+                                var data = new Object();
+                                data.id = json[x].id;
+                                data.rate = json[x].h_rate;
+                                data.timer = json[x].time;
+                                data.min_rate = json[x].c_intensity[0];
+                                data.max_rate = json[x].c_intensity[1];
+                                data.name = json[x].name;
+                                data.kcal = json[x].kcal;
+                                ranklist.push(data);
+
+                                //createTable(json.data[x][3], json.data[x][4], json.data[x][1], json.data[x][0], json.data[x][5], json.data[x][6], json.data[x][7]);
+                                // ranking(json.data[x][0], json.data[x][7], json.data[x][1], json.data[x][2], 0);
+                                // var data = new Object();
+                                // data.id = json.data[x][0];
+                                // data.rate = json.data[x][1];
+                                // data.timer = json.data[x][2];
+                                // data.min_rate = json.data[x][3];
+                                // data.max_rate = json.data[x][4];
+                                // data.name = json.data[x][7];
+                                // ranklist.push(data);
+                            } else {
+                                newCheck = false;
+
+                                var data = new Object();
+                                data.id = json[x].id;
+                                data.rate = json[x].h_rate;
+                                data.timer = json[x].time;
+                                data.min_rate = json[x].c_intensity[0];
+                                data.max_rate = json[x].c_intensity[1];
+                                data.name = json[x].name;
+                                data.kcal = json[x].kcal;
+                                ranklist.push(data);
+                                // rankingFilter(id, rate, min_rate, max_rate)
+                                // (carbonenRate_min, carbonenRate_max, heart, device, minimumexe, maximumexe)
+                                updateTable(json[x].c_intensity[0], json[x].c_intensity[1], json[x].h_rate, json[x].id, json[x].c_intensity[2], json[x].c_intensity[3]);
+                                //rankingFilter(id, rate, min_rate, max_rate, timer) {
+                                //  rankingFilter(json.data[x][0], json.data[x][1], json.data[x][3], json.data[x][4], json.data[x][2]);
+                                // console.log("테이블생성종료");
+                            }
+
+                            // for (y in json.data[x]) {
+                            //     console.log(json.data[x][y]);
+                            // }
+                        }
+                        //모니터링 업데이트 종료 ==================================
+
+
+                        // var json_array_ranklist = JSON.stringify(ranklist);
+                        // containerReset();
+                        console.log("ranklist : " + ranklist);
+
+                        // json_array_ranklist.sort(function (a, b) {
+                        //     if (a.timer > b.timer) {
+                        //         return 1;
+                        //     }
+                        //     if (a.timer < b.timer) {
+                        //         return -1;
+                        //     }
+                        //     // a must be equal to b
+                        //     return 0;
+                        // });
+
+                        ranklist.sort(function (a, b) { // 내림차순
+                            return b.timer - a.timer;
+                            // 11, 10, 4, 3, 2, 1
+                        });
+
+                        //랭킹 업데이트 ==================================
+                        for (var num = 0; num < ranklist.length; num++) {
+                            //id, name, rate, time, rank
+                            ranking(ranklist[num].id, ranklist[num].name, ranklist[num].rate, ranklist[num].timer, num + 1, ranklist[num].kcal);
+                            rankingFilter(ranklist[num].id, ranklist[num].rate, ranklist[num].min_rate, ranklist[num].max_rate, ranklist[num].timer, ranklist[num].kcal);
+                        }
+                    }
+                } else {
+                    console.error(xhr.responseText);
+                }
+            }
+        };
+        xhr.open('GET', 'http://192.168.35.134:8080/web/update?channel=' + channel); // 메소드와 주소 설정
+        xhr.send(); // 요청 전송
+
+    }, 2000);
+
+    function sortResults(prop, asc) {
+        people = people.sort(function (a, b) {
+            if (asc) {
+                return (a[prop] > b[prop]) ? 1 : ((a[prop] < b[prop]) ? -1 : 0);
+            } else {
+                return (b[prop] > a[prop]) ? 1 : ((b[prop] < a[prop]) ? -1 : 0);
+            }
+        });
+        showResults();
+    }
+
+
+    //랭킹부분 초기세팅 , 랭킹생성
+    function ranking(id, name, rate, time, rank, kcal) {
+        var container = window.document.getElementById("ranking_wrapper");
+        var idvalue_id = document.createElement("div"); //메인박스
+        idvalue_id.setAttribute("id", id + "_id");
+
+        var item1 = document.createElement("div");
+        item1.setAttribute("class", "item1");
+        var item1_rank = document.createElement("div");
+        item1_rank.setAttribute("class", "rank");
+        item1_rank.innerText = rank;
+        item1.appendChild(item1_rank);
+
+        var item2 = document.createElement("div");
+        item2.setAttribute("class", "item2");
+        var item2_name = document.createElement("div");
+        item2_name.setAttribute("class", "name");
+        item2_name.innerText = name;
+
+        var item2_time = document.createElement("div");
+        item2_time.setAttribute("class", "time");
+        item2_time.innerText = time + '초';
+
+        var item2_kcal = document.createElement("div");
+        item2_kcal.setAttribute("class", "kcal");
+        item2_kcal.innerText = kcal + 'kcal/m';
+
+        item2.appendChild(item2_name);
+        item2.appendChild(item2_time);
+        item2.appendChild(item2_kcal);
+
+        idvalue_id.appendChild(item1);
+        idvalue_id.appendChild(item2);
+
+        container.appendChild(idvalue_id);
+    }
+
+    //랭킹, 카르보넨 수치값에 따른 색상변경
+    function rankingFilter(id, rate, min_rate, max_rate, timer, kcal) {
+        var itemBox = document.getElementById(id + "_id").getElementsByClassName("item1")[0];
+        var itemBox_time = document.getElementById(id + "_id").getElementsByClassName("time")[0];
+        var itemBox_kcal = document.getElementById(id + "_id").getElementsByClassName("kcal")[0];
+
+        // console.log(id + " : " + rate + " : " + min_rate + " : " + max_rate);
+        if (rate != 0) {
+            if ((rate * 1) >= (min_rate * 1) && (rate * 1) <= (max_rate * 1)) { //안정권
+                itemBox.style.backgroundColor = '#B7F0B1';
+                itemBox_time.innerText = timer + '초';
+                itemBox_kcal.innerText = kcal + 'kcal/m';
+            } else if ((rate * 1) > (max_rate * 1)) {
+                itemBox.style.backgroundColor = '#f44560';
+            } else {
+                itemBox.style.backgroundColor = '#D8D8D8';
+            }
+        } else {
+            itemBox.style.backgroundColor = '#D8D8D8';
+        }
+    }
+
+    function tableReset() {
+
+        var container = window.document.getElementById("wrapper");
+        while (container.hasChildNodes()) {
+            container.removeChild(container.firstChild);
+        }
+    }
+
+    function containerReset() {
+        var container = window.document.getElementById("ranking_wrapper");
+        while (container.hasChildNodes()) {
+            container.removeChild(container.firstChild);
+        }
+    }
+</script>
+</body>
+</html>

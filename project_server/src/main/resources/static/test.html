@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+    // var testusercode = "22168f";
+    //var testusercode = "221698";
+    var testusercode = "123456";
+    var check = false;
+    var id;
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = "text";
+    xhr.onreadystatechange = function () { // 요청에 대한 콜백
+        if (xhr.readyState === xhr.DONE) { // 요청이 완료되면
+            if (xhr.status === 200 || xhr.status === 201) {
+                if (xhr.responseText == "") {
+                    alert("존재하지 않는 코드입니다");
+                }
+                var json = JSON.parse(xhr.responseText);
+                id = json.id;
+                json.data.forEach(data => dataScreen(data));
+                check = true;
+            } else {
+                console.error(xhr.responseText);
+            }
+        }
+    };
+    xhr.open('GET', 'http://localhost:8080/find_data?groupId=' + testusercode); // 메소드와 주소 설정
+    xhr.send(); // 요청 전송
+    // xhr.abort(); // 전송된 요청 취소
+</script>
+</body>
+</html>

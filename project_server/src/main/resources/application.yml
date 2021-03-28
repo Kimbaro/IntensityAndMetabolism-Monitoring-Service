@@ -1,0 +1,15 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://kimbaro:1234@cluster0.7k9ky.mongodb.net/CapstoneDB?retryWrites=true&w=majority
+      database: CapstoneDB
+
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create
+  main:
+    allow-bean-definition-overriding: true
+#http://219.250.95.75:60080/
+
+

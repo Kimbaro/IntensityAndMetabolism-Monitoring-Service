@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+    var check = false;
+    var id;
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = "text";
+    xhr.onreadystatechange = function () { // 요청에 대한 콜백
+        if (xhr.readyState === xhr.DONE) { // 요청이 완료되면
+            if (xhr.status === 200 || xhr.status === 201) {
+                var json = JSON.parse(xhr.responseText);
+                id = json.id;
+                console.log(json.id);
+                check = true;
+            } else {
+                console.error(xhr.responseText);
+            }
+        }
+    };
+    xhr.open('GET', 'http://34.97.101.220:8080/user_group_create'); // 메소드와 주소 설정
+    xhr.send(); // 요청 전송
+    // xhr.abort(); // 전송된 요청 취소
+
+    createRoom = setInterval(function () {
+        if (check) {
+            var xhr = new XMLHttpRequest();
+            xhr.responseType = "text";
+            xhr.onreadystatechange = function () { // 요청에 대한 콜백
+                if (xhr.readyState === xhr.DONE) { // 요청이 완료되면
+                    if (xhr.status === 200 || xhr.status === 201) {
+                        var json = JSON.parse(xhr.responseText);
+                        stopInterval();
+                        location.replace("../group_screen/index.html?type=2&id=" + json.id + "&groupcode=" + json.groupcode);
+                    } else {
+                        console.error(xhr.responseText);
+                    }
+                }
+            };
+            xhr.open('GET', 'http://34.97.101.220:8080/user_group_set?id=' + id); // 메소드와 주소 설정
+            xhr.send(); // 요청 전송
+            // xhr.abort(); // 전송된 요청 취소
+        } else {
+            console.log("대기중");
+        }
+    }, 2000);
+
+    stopInterval = function () {
+        clearInterval(createRoom);
+    }
+</script>
+</body>
+</html>
