@@ -84,25 +84,18 @@ public class DeviceControlActivity extends Activity {
     private final String LIST_UUID = "UUID";
 
     private boolean screenCheck = true;
+    private boolean trainning_start = false;
 
     public void readyScreen() {
-        if (screenCheck == true) {
-            screenCheck = false;
-            comment_info.setVisibility(View.GONE);
-            comment_info2.setVisibility(View.GONE);
+            comment_info.setVisibility(View.VISIBLE);
             comment_start.setVisibility(View.GONE);
             comment_ready.setVisibility(View.VISIBLE);
-        }
     }
 
     public void startScreen() {
-        if (screenCheck == false) {
-            screenCheck = true;
-            comment_info.setVisibility(View.VISIBLE);
-            comment_info2.setVisibility(View.VISIBLE);
+            comment_info.setVisibility(View.GONE);
             comment_start.setVisibility(View.VISIBLE);
             comment_ready.setVisibility(View.GONE);
-        }
     }
 
     // Code to manage Service lifecycle.
@@ -156,28 +149,35 @@ public class DeviceControlActivity extends Activity {
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
                 if (UserConfig.RATE.equals("0")) {
-                    readyScreen();
+                    if(trainning_start){
+                        readyScreen();
+                    }
                 } else {
-                    startScreen();
-                    karvonen.checkTime(Integer.parseInt(UserConfig.MIN_RATE), Integer.parseInt(UserConfig.MAX_RATE));
-                    if (sendCheck) {
-                        sendCheck = false;
-                        Log.e("ASDKIM", UserConfig.USERID);
-                        Log.e("ASDKIM", UserConfig.GROUPCODE);
-                        Log.e("ASDKIM", UserConfig.RATE);
-                        Log.e("ASDKIM", UserConfig.MIN_RATE);
-                        Log.e("ASDKIM", UserConfig.MAX_RATE);
-                        Log.e("ASDKIM", UserConfig.MIN_STRENGTH);
-                        Log.e("ASDKIM", UserConfig.MAX_STRENGTH);
-                        Log.e("ASDKIM", UserConfig.NAME);
-                        Log.e("ASDKIM", "운동유지시간 : " + UserConfig.TIMER);
-                        updateModule.requestUpdate();
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                sendCheck = true;
-                            }
-                        }, 1000);
+                    if(trainning_start){
+                        startScreen();
+                        //karvonen.checkTime(Integer.parseInt(UserConfig.MIN_RATE), Integer.parseInt(UserConfig.MAX_RATE));
+                        if (sendCheck) {
+                            sendCheck = false;
+//                        Log.e("ASDKIM", UserConfig.USERID);
+//                        Log.e("ASDKIM", UserConfig.GROUPCODE);
+//                        Log.e("ASDKIM", UserConfig.RATE);
+//                        Log.e("ASDKIM", UserConfig.MIN_RATE);
+//                        Log.e("ASDKIM", UserConfig.MAX_RATE);
+//                        Log.e("ASDKIM", UserConfig.min_strength);
+//                        Log.e("ASDKIM", UserConfig.max_strength);
+//                        Log.e("ASDKIM", UserConfig.NAME);
+//                        Log.e("ASDKIM", "운동유지시간 : " + UserConfig.TIMER);
+                            Log.e("Kim", "SYSTEM[참여채널]:"+UserConfig.channel);
+                            Log.e("Kim", "SYSTEM[모바일아이디]:"+UserConfig.mobile_id);
+                            Log.e("Kim", "SYSTEM[심박수]:"+UserConfig.RATE);
+                            updateModule.requestUpdate();
+                            mHandler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    sendCheck = true;
+                                }
+                            }, 1000);
+                        }
                     }
                 }
             }
@@ -234,14 +234,10 @@ public class DeviceControlActivity extends Activity {
         karvonen = new Karvonen();
         updateModule = new UpdateModule();
 
-        min_streng = findViewById(R.id.min_strength);
-        max_streng = findViewById(R.id.max_strength);
-
-        min_rate = findViewById(R.id.min_rate);
-        max_rate = findViewById(R.id.max_rate);
+        select_strength = findViewById(R.id.select_strength);
 
         mCode = findViewById(R.id.code);
-        mCode.setText(" / "+UserConfig.GROUPCODE);
+        mCode.setText(" / "+UserConfig.mobile_id);
 
         final Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
@@ -401,48 +397,35 @@ public class DeviceControlActivity extends Activity {
         return intentFilter;
     }
 
-    TextView min_streng;
-    TextView max_streng;
-    TextView min_rate;
-    TextView max_rate;
+    TextView select_strength;
 
     public void type_click(View v) {
+        trainning_start = true;
         switch (v.getId()) {
             case R.id.type1://워밍업
-                UserConfig.MIN_STRENGTH = "0";
-                UserConfig.MAX_STRENGTH = "60";
-                karvonen.setKarvonen(UserConfig.GENDER, 0, 60);
-                min_streng.setText(UserConfig.MIN_STRENGTH);
-                max_streng.setText(UserConfig.MAX_STRENGTH);
-                min_rate.setText(UserConfig.MIN_RATE);
-                max_rate.setText(UserConfig.MAX_RATE);
+                UserConfig.min_strength = "0";
+                UserConfig.max_strength = "60";
+                select_strength.setText("워밍업("+UserConfig.min_strength+"~"+UserConfig.max_strength+")");
                 break;
             case R.id.type2://유산소 약
-                UserConfig.MIN_STRENGTH = "60";
-                UserConfig.MAX_STRENGTH = "70";
-                karvonen.setKarvonen(UserConfig.GENDER, 60, 70);
-                min_streng.setText(UserConfig.MIN_STRENGTH);
-                max_streng.setText(UserConfig.MAX_STRENGTH);
-                min_rate.setText(UserConfig.MIN_RATE);
-                max_rate.setText(UserConfig.MAX_RATE);
+                UserConfig.min_strength = "60";
+                UserConfig.max_strength = "70";
+                select_strength.setText("유산소 약("+UserConfig.min_strength+"~"+UserConfig.max_strength+")");
                 break;
             case R.id.type3://유산소 강
-                UserConfig.MIN_STRENGTH = "70";
-                UserConfig.MAX_STRENGTH = "80";
-                karvonen.setKarvonen(UserConfig.GENDER, 70, 80);
-                min_streng.setText(UserConfig.MIN_STRENGTH);
-                max_streng.setText(UserConfig.MAX_STRENGTH);
-                min_rate.setText(UserConfig.MIN_RATE);
-                max_rate.setText(UserConfig.MAX_RATE);
+                UserConfig.min_strength = "70";
+                UserConfig.max_strength = "80";
+                select_strength.setText("유산소 강("+UserConfig.min_strength+"~"+UserConfig.max_strength+")");
                 break;
             case R.id.type4://고강도운동
-                UserConfig.MIN_STRENGTH = "80";
-                UserConfig.MAX_STRENGTH = "100";
-                karvonen.setKarvonen(UserConfig.GENDER, 80, 100);
-                min_streng.setText(UserConfig.MIN_STRENGTH);
-                max_streng.setText(UserConfig.MAX_STRENGTH);
-                min_rate.setText(UserConfig.MIN_RATE);
-                max_rate.setText(UserConfig.MAX_RATE);
+                UserConfig.min_strength = "80";
+                UserConfig.max_strength = "90";
+                select_strength.setText("고강도운동("+UserConfig.min_strength+"~"+UserConfig.max_strength+")");
+                break;
+            case R.id.type5://레드존
+                UserConfig.min_strength = "90";
+                UserConfig.max_strength = "100";
+                select_strength.setText("레드존("+UserConfig.min_strength+"~"+UserConfig.max_strength+")");
                 break;
         }
     }

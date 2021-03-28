@@ -11,6 +11,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
+import retrofit2.http.QueryName;
 
 public interface RetrofitService {
     @GET("/user_create")
@@ -24,4 +25,21 @@ public interface RetrofitService {
 
     @GET("/user_group_create")
     Call<JsonObject> user_group_create();
+
+    //-------
+
+    @GET("/test")
+    Call<JsonObject> test();
+
+    @GET(value = "/c_ch") //create channel
+    Call<JsonObject> c_ch();
+
+    @GET(value = "/search_ch")
+    Call<JsonObject>  search_ch(@Query(value = "channel") String channel);
+
+    @GET(value = "/join_ch") //join channel
+    Call<JsonObject> join_ch(@QueryMap Map<String, String> data);
+
+    @GET(value = "/mobile/update")
+    Call<JsonObject>  mobile_update (@QueryMap Map<String, String> data);
 }

@@ -24,7 +24,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
+        <activity android:name=".JoinActivity"></activity>
+        <activity
+            android:name=".ui.login.LoginActivity"
+            android:label="@string/title_activity_login" />
         <activity android:name=".MeasureActivity" />
         <activity android:name=".MainActivity" />
         <activity
@@ -41,9 +44,7 @@
             android:theme="@android:style/Theme.Holo.Light" />
         <activity
             android:name=".bt_module.DeviceControlActivity"
-            android:theme="@android:style/Theme.Holo.Light">
-
-        </activity>
+            android:theme="@android:style/Theme.Holo.Light" />
 
         <service
             android:name=".bt_module.BluetoothLeService"

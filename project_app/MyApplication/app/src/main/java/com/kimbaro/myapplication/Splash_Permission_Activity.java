@@ -48,7 +48,7 @@ public class Splash_Permission_Activity extends AppCompatActivity {
 
         if (isPermission) {
             //수정
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(this, JoinActivity.class);
             startActivity(intent);
             finish();
         } else {
